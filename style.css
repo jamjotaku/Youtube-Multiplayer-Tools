@@ -1,0 +1,371 @@
+/* =========================================
+   Base Variables (YouTube Dark Mode Theme)
+   ========================================= */
+   :root {
+    --bg-main: #0f0f0f;
+    --bg-secondary: #272727;
+    --bg-hover: #3f3f3f;
+    --text-primary: #f1f1f1;
+    --text-secondary: #aaaaaa;
+    --accent-red: #ff0000;
+    --accent-blue: #3ea6ff;
+    --border-color: #3f3f3f;
+    
+    --header-height: 56px;
+    --transition-speed: 0.2s;
+}
+
+/* =========================================
+   Global Reset
+   ========================================= */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: 'Roboto', 'Arial', sans-serif;
+    background-color: var(--bg-main);
+    color: var(--text-primary);
+    height: 100vh;
+    overflow: hidden; /* 防止全体のスクロール */
+    display: flex;
+    flex-direction: column;
+}
+
+/* =========================================
+   Header (Control Panel)
+   ========================================= */
+.yt-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: var(--header-height);
+    padding: 0 16px;
+    background-color: var(--bg-main);
+    z-index: 100;
+}
+
+.header-left, .header-right {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    min-width: 200px;
+}
+
+.header-right {
+    justify-content: flex-end;
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+}
+
+.logo-icon {
+    color: var(--accent-red);
+    font-size: 28px;
+}
+
+.logo h1 {
+    font-size: 18px;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+}
+
+/* Search Bar */
+.header-center {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    max-width: 600px;
+}
+
+.search-bar {
+    display: flex;
+    width: 100%;
+    background-color: var(--bg-main);
+    border: 1px solid var(--border-color);
+    border-radius: 40px;
+    overflow: hidden;
+    margin: 0 40px;
+}
+
+.search-bar:focus-within {
+    border-color: var(--accent-blue);
+    box-shadow: inset 0 1px 2px rgba(0,0,0,0.3);
+}
+
+.search-bar input {
+    flex: 1;
+    background-color: transparent;
+    border: none;
+    color: var(--text-primary);
+    padding: 2px 20px;
+    font-size: 16px;
+    outline: none;
+}
+
+.search-bar input::placeholder {
+    color: var(--text-secondary);
+}
+
+.search-btn {
+    background-color: var(--bg-secondary);
+    border: none;
+    border-left: 1px solid var(--border-color);
+    color: var(--text-primary);
+    padding: 0 20px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color var(--transition-speed);
+}
+
+.search-btn:hover {
+    background-color: var(--bg-hover);
+}
+
+/* Icon Buttons */
+.icon-btn, .menu-icon, .control-btn {
+    background: transparent;
+    border: none;
+    color: var(--text-primary);
+    cursor: pointer;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color var(--transition-speed);
+}
+
+.icon-btn:hover, .menu-icon:hover, .control-btn:hover {
+    background-color: var(--bg-secondary);
+}
+
+/* =========================================
+   Main Content & Grid
+   ========================================= */
+.main-container {
+    flex: 1;
+    display: flex;
+    overflow: hidden;
+    position: relative;
+}
+
+.sidebar {
+    width: 240px;
+    background-color: var(--bg-main);
+    transition: width var(--transition-speed);
+    overflow-y: auto;
+}
+
+.sidebar.collapsed {
+    width: 0;
+    padding: 0;
+    overflow: hidden;
+}
+
+.streams-grid {
+    flex: 1;
+    padding: 8px;
+    display: grid;
+    gap: 8px;
+    overflow-y: auto;
+    /* デフォルトのグリッドレイアウト。JSで動的に変更 */
+    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+    align-content: start;
+    background-color: #000;
+}
+
+.empty-state {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+}
+
+.empty-message {
+    text-align: center;
+    color: var(--text-secondary);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+}
+
+.empty-icon {
+    font-size: 64px;
+    opacity: 0.5;
+}
+
+/* =========================================
+   Stream Card
+   ========================================= */
+.stream-card {
+    background-color: var(--bg-main);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    height: 100%;
+    min-height: 300px;
+}
+
+.stream-header {
+    display: flex;
+    align-items: center;
+    padding: 4px 8px;
+    background-color: var(--bg-secondary);
+    border-bottom: 1px solid var(--border-color);
+    height: 40px;
+}
+
+.drag-handle {
+    cursor: grab;
+    color: var(--text-secondary);
+    margin-right: 8px;
+    font-size: 20px;
+}
+
+.stream-title {
+    flex: 1;
+    font-size: 14px;
+    font-weight: 500;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.stream-controls {
+    display: flex;
+    gap: 4px;
+}
+
+.control-btn {
+    width: 32px;
+    height: 32px;
+}
+
+.control-btn .material-icons {
+    font-size: 18px;
+}
+
+.control-btn.active {
+    color: var(--accent-blue);
+}
+
+/* Body (Video + Chat) */
+.stream-body {
+    flex: 1;
+    display: flex;
+    flex-direction: row;
+    overflow: hidden;
+}
+
+/* 動画が上の場合（縦長）や、横長の場合などレスポンシブ対応 */
+.stream-body {
+    flex-direction: column; /* デフォルトは縦並び */
+}
+
+/* 横幅に余裕がある時は横並びにする（CSS Grid等のコンテナサイズクエリが理想だが、ここではMedia Queryか親のクラスで制御） */
+@media (min-width: 800px) {
+    .streams-grid:not(.grid-many) .stream-body.has-chat {
+        flex-direction: row;
+    }
+}
+
+.video-container {
+    flex: 1;
+    background-color: #000;
+    position: relative;
+    min-height: 200px;
+}
+
+.video-container iframe {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border: none;
+}
+
+.chat-container {
+    display: none; /* デフォルト非表示 */
+    background-color: var(--bg-main);
+    border-top: 1px solid var(--border-color);
+}
+
+/* チャット表示時のスタイル */
+.stream-body.has-chat .chat-container {
+    display: block;
+    height: 250px; /* 縦並びの時のチャット高さ */
+}
+
+@media (min-width: 800px) {
+    .streams-grid:not(.grid-many) .stream-body.has-chat .chat-container {
+        width: 300px;
+        height: 100%;
+        border-top: none;
+        border-left: 1px solid var(--border-color);
+    }
+}
+
+.chat-container iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
+}
+
+/* =========================================
+   Tooltips
+   ========================================= */
+.tooltip {
+    position: relative;
+}
+
+.tooltip::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    bottom: -30px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: rgba(97, 97, 97, 0.9);
+    color: white;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s;
+    z-index: 1000;
+}
+
+.tooltip:hover::after {
+    opacity: 1;
+}
+
+/* スクロールバーのカスタマイズ */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+::-webkit-scrollbar-thumb {
+    background: #717171;
+    border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+    background: #a0a0a0;
+}

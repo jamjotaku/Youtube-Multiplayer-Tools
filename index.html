@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YT Multiplayer</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <!-- Google Material Icons -->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <!-- SortableJS -->
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
+</head>
+<body>
+    <!-- ヘッダー（コントロールパネル） -->
+    <header class="yt-header">
+        <div class="header-left">
+            <span class="material-icons menu-icon">menu</span>
+            <div class="logo">
+                <span class="material-icons logo-icon">play_circle_filled</span>
+                <h1>YT Multiplayer</h1>
+            </div>
+        </div>
+        
+        <div class="header-center">
+            <div class="search-bar">
+                <input type="text" id="stream-url-input" placeholder="YouTubeのURLまたは配信IDを入力...">
+                <button id="add-stream-btn" class="search-btn">
+                    <span class="material-icons">add</span>
+                </button>
+            </div>
+        </div>
+        
+        <div class="header-right">
+            <div class="global-controls tooltip" data-tooltip="全体の一括音量">
+                <span class="material-icons" id="global-mute-btn" style="cursor:pointer;">volume_up</span>
+                <input type="range" id="global-volume" min="0" max="100" value="50">
+            </div>
+            <button id="layout-toggle-btn" class="icon-btn tooltip" data-tooltip="レイアウト変更">
+                <span class="material-icons">grid_view</span>
+            </button>
+            <button class="icon-btn tooltip" data-tooltip="設定">
+                <span class="material-icons">settings</span>
+            </button>
+        </div>
+    </header>
+
+    <!-- メインコンテンツ（ストリームグリッド） -->
+    <main class="main-container">
+        <!-- 動画を敷き詰めるグリッドエリア -->
+        <div id="streams-grid" class="streams-grid empty-state">
+            <div class="empty-message">
+                <span class="material-icons empty-icon">video_library</span>
+                <h2>配信がありません</h2>
+                <p>上の検索バーにYouTube LiveのURLを入力して追加してください</p>
+            </div>
+        </div>
+    </main>
+
+    <!-- ストリームカードのテンプレート -->
+    <template id="stream-card-template">
+        <div class="stream-card">
+            <div class="stream-header">
+                <div class="drag-handle material-icons tooltip" data-tooltip="ドラッグして移動">drag_indicator</div>
+                <div class="stream-title">配信を読み込み中...</div>
+                <div class="stream-controls">
+                    <button class="control-btn toggle-chat-btn tooltip" data-tooltip="チャットの表示/非表示">
+                        <span class="material-icons">chat</span>
+                    </button>
+                    <button class="control-btn remove-stream-btn tooltip" data-tooltip="閉じる">
+                        <span class="material-icons">close</span>
+                    </button>
+                </div>
+            </div>
+            <div class="stream-body has-chat">
+                <div class="video-container">
+                    <!-- YouTube IFrame API用のプレースホルダー -->
+                    <div class="youtube-player-placeholder"></div>
+                </div>
+                <div class="chat-container">
+                    <!-- チャットiframeが挿入される -->
+                </div>
+            </div>
+        </div>
+    </template>
+
+    <script src="app.js"></script>
+</body>
+</html>
