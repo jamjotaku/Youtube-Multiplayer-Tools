@@ -1,0 +1,17 @@
+{
+  "name": "YT Multiplayer",
+  "short_name": "YT Multi",
+  "description": "超軽量YouTube複数窓視聴ツール",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#0f0f0f",
+  "theme_color": "#ff0000",
+  "icons": [
+    {
+      "src": "icon.svg",
+      "sizes": "192x192 512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

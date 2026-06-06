@@ -179,8 +179,6 @@ body {
     gap: 8px;
     overflow-y: auto;
     /* デフォルトのグリッドレイアウト。JSで動的に変更 */
-    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
-    align-content: start;
     background-color: #000;
 }
 
@@ -216,7 +214,7 @@ body {
     flex-direction: column;
     overflow: hidden;
     height: 100%;
-    min-height: 300px;
+    min-height: 250px;
 }
 
 .stream-header {
@@ -312,7 +310,7 @@ body {
 
 @media (min-width: 800px) {
     .streams-grid:not(.grid-many) .stream-body.has-chat .chat-container {
-        width: 300px;
+        width: 280px; /* 少し狭くして動画部分を広げる */
         height: 100%;
         border-top: none;
         border-left: 1px solid var(--border-color);

@@ -148,15 +148,26 @@ document.addEventListener('DOMContentLoaded', () => {
                 </div>
             `;
             grid.style.gridTemplateColumns = '1fr';
+            grid.style.gridTemplateRows = '1fr';
         } else if (count === 1) {
             grid.style.gridTemplateColumns = '1fr';
+            grid.style.gridTemplateRows = '1fr';
         } else if (count === 2) {
             grid.style.gridTemplateColumns = '1fr 1fr';
+            grid.style.gridTemplateRows = '1fr';
         } else if (count <= 4) {
             grid.style.gridTemplateColumns = '1fr 1fr';
+            grid.style.gridTemplateRows = '1fr 1fr';
         } else {
             grid.style.gridTemplateColumns = 'repeat(auto-fit, minmax(300px, 1fr))';
+            grid.style.gridTemplateRows = 'auto';
             grid.classList.add('grid-many');
+        }
+        
+        if(count > 0) {
+            grid.classList.remove('empty-state');
+            const emptyMsg = grid.querySelector('.empty-message');
+            if(emptyMsg) emptyMsg.remove();
         }
         
         if(count <= 4) {
