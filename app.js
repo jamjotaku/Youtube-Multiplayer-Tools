@@ -39,7 +39,8 @@ document.addEventListener('DOMContentLoaded', () => {
     // ユーティリティ
     // ==========================================
     function extractVideoId(url) {
-        const regex = /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/i;
+        // 通常の /watch?v=, 短縮 youtu.be/, 埋め込み /embed/, そして /live/, /shorts/ などのURLに対応
+        const regex = /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?|live|shorts)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/i;
         const match = url.match(regex);
         return match ? match[1] : (url.length === 11 ? url : null);
     }
