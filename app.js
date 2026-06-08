@@ -1,86 +1,93 @@
-let ytPlayers = {}; // 格納用オブジェクト { 固有ID: YT.Player }
+let ytPlayers = {};
+let currentStreams = []; // Array of objects { id, url, videoId }
 let globalVolume = 50;
+let isMuted = false;
+let isSwipeMode = false;
 
-// ==========================================
-// YouTube IFrame APIの読み込み
-// ==========================================
+// Load presets from LocalStorage
+let presets = JSON.parse(localStorage.getItem('yt-presets')) || [];
+
 const tag = document.createElement('script');
 tag.src = "https://www.youtube.com/iframe_api";
 const firstScriptTag = document.getElementsByTagName('script')[0];
 firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
 
-// APIの準備完了コールバック
 function onYouTubeIframeAPIReady() {
     console.log("YouTube IFrame API Ready.");
 }
 
 document.addEventListener('DOMContentLoaded', () => {
+    // Desktop elements
     const streamInput = document.getElementById('stream-url-input');
     const addBtn = document.getElementById('add-stream-btn');
+    const layoutToggleBtn = document.getElementById('layout-toggle-btn');
+    const presetsBtn = document.getElementById('presets-btn');
+    
+    // Mobile elements
+    const mobileSearchContainer = document.getElementById('mobile-search-container');
+    const mobileStreamInput = document.getElementById('mobile-stream-url-input');
+    const mobileAddBtn = document.getElementById('mobile-add-stream-btn');
+    const navAdd = document.getElementById('mobile-nav-add');
+    const navPresets = document.getElementById('mobile-nav-presets');
+    const navLayout = document.getElementById('mobile-nav-layout');
+    const navMute = document.getElementById('mobile-nav-mute');
+    
     const grid = document.getElementById('streams-grid');
     const template = document.getElementById('stream-card-template');
-    const layoutToggleBtn = document.getElementById('layout-toggle-btn');
-    const globalVolumeSlider = document.getElementById('global-volume');
-    const globalMuteBtn = document.getElementById('global-mute-btn');
     
-    let streamIds = []; // 画面上のIDリスト
+    // Modal
+    const modal = document.getElementById('presets-modal');
+    const closeModal = document.querySelector('.close-modal');
+    const savePresetBtn = document.getElementById('save-preset-btn');
+    const presetNameInput = document.getElementById('preset-name-input');
+    const presetsList = document.getElementById('presets-list');
 
-    // ==========================================
-    // SortableJSの初期化 (ドラッグ＆ドロップ対応)
-    // ==========================================
-    Sortable.create(grid, {
-        handle: '.drag-handle', // ドラッグ可能な部分
-        animation: 150,         // アニメーション速度
-        ghostClass: 'sortable-ghost', // ドロップ先のスタイル
-        filter: '.empty-message'
+    // SortableJS setup
+    let sortable = Sortable.create(grid, {
+        handle: '.drag-handle',
+        animation: 150,
+        ghostClass: 'sortable-ghost',
+        filter: '.empty-message',
+        onEnd: () => {
+            // Reorder logic if needed
+        }
     });
 
-    // ==========================================
-    // ユーティリティ
-    // ==========================================
     function extractVideoId(url) {
-        // 通常の /watch?v=, 短縮 youtu.be/, 埋め込み /embed/, そして /live/, /shorts/ などのURLに対応
         const regex = /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?|live|shorts)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/i;
         const match = url.match(regex);
         return match ? match[1] : (url.length === 11 ? url : null);
     }
 
-    function getEmbedDomain() {
-        const hostname = window.location.hostname;
-        return hostname ? hostname : 'localhost';
-    }
+    function addStream(url) {
+        if(!url) return;
+        const videoId = extractVideoId(url);
+        if (!videoId) {
+            alert('有効なYouTube URLを入力してください。');
+            return;
+        }
 
-    // ==========================================
-    // ストリームの追加処理
-    // ==========================================
-    function addStream(videoId) {
-        if (!videoId) return;
-
-        // 一意のIDを生成 (同じ動画を複数開く可能性も考慮)
         const uniqueId = 'stream_' + Math.random().toString(36).substr(2, 9);
+        currentStreams.push({ id: uniqueId, url, videoId });
 
-        // 空状態メッセージを消す
-        if (streamIds.length === 0) {
+        if (currentStreams.length === 1) {
             grid.classList.remove('empty-state');
             grid.innerHTML = '';
         }
 
-        const domain = getEmbedDomain();
+        const domain = window.location.hostname || 'localhost';
         const clone = template.content.cloneNode(true);
         const card = clone.querySelector('.stream-card');
         card.dataset.streamId = uniqueId;
         
-        // 動画プレースホルダーの設定
         const playerPlaceholder = card.querySelector('.youtube-player-placeholder');
-        playerPlaceholder.id = 'player-' + uniqueId; // APIが認識するためのID
+        playerPlaceholder.id = 'player-' + uniqueId;
 
-        // チャットiframeの設定
         const chatContainer = card.querySelector('.chat-container');
         const chatIframe = document.createElement('iframe');
-        chatIframe.src = `https://www.youtube.com/live_chat?v=${videoId}&embed_domain=${domain}`;
+        chatIframe.src = `https://www.youtube.com/live_chat?v=${videoId}&embed_domain=${domain}&dark_theme=1`;
         chatContainer.appendChild(chatIframe);
 
-        // UIイベントの設定
         const closeBtn = card.querySelector('.remove-stream-btn');
         closeBtn.addEventListener('click', () => {
             if(ytPlayers[uniqueId]) {
@@ -88,29 +95,23 @@ document.addEventListener('DOMContentLoaded', () => {
                 delete ytPlayers[uniqueId];
             }
             card.remove();
-            streamIds = streamIds.filter(id => id !== uniqueId);
+            currentStreams = currentStreams.filter(s => s.id !== uniqueId);
             updateGrid();
         });
 
         const chatToggleBtn = card.querySelector('.toggle-chat-btn');
         const streamBody = card.querySelector('.stream-body');
-        
         chatToggleBtn.addEventListener('click', () => {
             streamBody.classList.toggle('has-chat');
             chatToggleBtn.classList.toggle('active');
         });
-        chatToggleBtn.classList.add('active'); // 初期状態
+        chatToggleBtn.classList.add('active');
 
-        // タイトル設定
-        card.querySelector('.stream-title').textContent = `YouTube Video (${videoId})`;
-
+        card.querySelector('.stream-title').textContent = `動画 (${videoId})`;
         grid.appendChild(card);
-        streamIds.push(uniqueId);
+        
         updateGrid();
-        streamInput.value = '';
 
-        // DOMに追加後、YouTube APIでプレイヤーを初期化
-        // APIがまだ準備できていない場合は少し待つ
         const initPlayer = () => {
             if (typeof YT === 'undefined' || !YT.Player) {
                 setTimeout(initPlayer, 100);
@@ -118,114 +119,186 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             ytPlayers[uniqueId] = new YT.Player('player-' + uniqueId, {
                 videoId: videoId,
-                playerVars: {
-                    'autoplay': 1,
-                    'controls': 1,
-                    'mute': 0
-                },
+                playerVars: { 'autoplay': 1, 'controls': 1, 'mute': 0 },
                 events: {
                     'onReady': (event) => {
-                        // 作成完了時にグローバル音量を適用
-                        event.target.setVolume(globalVolume);
+                        event.target.setVolume(isMuted ? 0 : globalVolume);
                     }
                 }
             });
         };
         initPlayer();
+        
+        // Reset inputs
+        streamInput.value = '';
+        mobileStreamInput.value = '';
+        mobileSearchContainer.classList.add('hidden'); // hide mobile input after adding
     }
 
-    // ==========================================
-    // グリッドの更新
-    // ==========================================
     function updateGrid() {
-        const count = streamIds.length;
+        const count = currentStreams.length;
         if (count === 0) {
             grid.classList.add('empty-state');
             grid.innerHTML = `
                 <div class="empty-message">
-                    <span class="material-icons empty-icon">video_library</span>
+                    <span class="material-icons empty-icon text-stone">video_library</span>
                     <h2>配信がありません</h2>
-                    <p>上の検索バーにYouTube LiveのURLを入力して追加してください</p>
+                    <p>上の検索バーから配信URLを追加するか、<br>プリセットから読み込んでください。</p>
                 </div>
             `;
             grid.style.gridTemplateColumns = '1fr';
             grid.style.gridTemplateRows = '1fr';
-        } else if (count === 1) {
-            grid.style.gridTemplateColumns = '1fr';
-            grid.style.gridTemplateRows = '1fr';
-        } else if (count === 2) {
-            grid.style.gridTemplateColumns = '1fr 1fr';
-            grid.style.gridTemplateRows = '1fr';
-        } else if (count <= 4) {
-            grid.style.gridTemplateColumns = '1fr 1fr';
-            grid.style.gridTemplateRows = '1fr 1fr';
+        } else if (isSwipeMode) {
+            // handled by CSS flex/snap
+            grid.style.gridTemplateColumns = '';
+            grid.style.gridTemplateRows = '';
         } else {
-            grid.style.gridTemplateColumns = 'repeat(auto-fit, minmax(300px, 1fr))';
-            grid.style.gridTemplateRows = 'auto';
-            grid.classList.add('grid-many');
-        }
-        
-        if(count > 0) {
-            grid.classList.remove('empty-state');
-            const emptyMsg = grid.querySelector('.empty-message');
-            if(emptyMsg) emptyMsg.remove();
-        }
-        
-        if(count <= 4) {
-            grid.classList.remove('grid-many');
+            // Normal Grid Mode
+            if (count === 1) {
+                grid.style.gridTemplateColumns = '1fr';
+                grid.style.gridTemplateRows = '1fr';
+            }
+            else if (count === 2) {
+                grid.style.gridTemplateColumns = '1fr 1fr';
+                grid.style.gridTemplateRows = '1fr';
+            }
+            else if (count <= 4) {
+                grid.style.gridTemplateColumns = '1fr 1fr';
+                grid.style.gridTemplateRows = '1fr 1fr';
+            }
+            else {
+                grid.style.gridTemplateColumns = 'repeat(auto-fit, minmax(300px, 1fr))';
+                grid.style.gridTemplateRows = 'auto';
+            }
         }
     }
 
-    // ==========================================
-    // 一括音量コントロール
-    // ==========================================
-    globalVolumeSlider.addEventListener('input', (e) => {
+    function toggleLayout() {
+        isSwipeMode = !isSwipeMode;
+        if (isSwipeMode) {
+            grid.classList.add('swipe-mode');
+            sortable.option("disabled", true); // Disable drag in swipe mode
+            document.getElementById('layout-toggle-btn').innerHTML = '<span class="material-icons">grid_view</span>';
+            document.getElementById('mobile-layout-icon').textContent = 'grid_view';
+        } else {
+            grid.classList.remove('swipe-mode');
+            sortable.option("disabled", false);
+            document.getElementById('layout-toggle-btn').innerHTML = '<span class="material-icons">view_carousel</span>';
+            document.getElementById('mobile-layout-icon').textContent = 'view_carousel';
+        }
+        updateGrid();
+    }
+
+    // Input handlers
+    [addBtn, mobileAddBtn].forEach(btn => btn.addEventListener('click', () => {
+        const url = btn.id === 'add-stream-btn' ? streamInput.value : mobileStreamInput.value;
+        addStream(url);
+    }));
+
+    [streamInput, mobileStreamInput].forEach(inp => inp.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') addStream(e.target.value);
+    }));
+
+    // Desktop Buttons
+    layoutToggleBtn.addEventListener('click', toggleLayout);
+    presetsBtn.addEventListener('click', openModal);
+
+    // Global volume
+    document.getElementById('global-volume').addEventListener('input', (e) => {
         globalVolume = parseInt(e.target.value);
-        Object.values(ytPlayers).forEach(player => {
-            if (player && typeof player.setVolume === 'function') {
-                player.setVolume(globalVolume);
-                player.unMute();
-            }
+        Object.values(ytPlayers).forEach(p => {
+            if(p.setVolume) { p.setVolume(globalVolume); p.unMute(); }
         });
-        globalMuteBtn.textContent = globalVolume === 0 ? 'volume_off' : 'volume_up';
+        isMuted = false;
+        document.getElementById('global-mute-btn').textContent = 'volume_up';
+        document.getElementById('mobile-mute-icon').textContent = 'volume_up';
     });
 
-    let isMuted = false;
-    globalMuteBtn.addEventListener('click', () => {
+    document.getElementById('global-mute-btn').addEventListener('click', toggleMute);
+
+    // Mobile Navigation
+    navAdd.addEventListener('click', () => {
+        mobileSearchContainer.classList.toggle('hidden');
+        if(!mobileSearchContainer.classList.hidden) mobileStreamInput.focus();
+    });
+    navLayout.addEventListener('click', toggleLayout);
+    navPresets.addEventListener('click', openModal);
+    navMute.addEventListener('click', toggleMute);
+
+    function toggleMute() {
         isMuted = !isMuted;
-        if (isMuted) {
-            globalMuteBtn.textContent = 'volume_off';
-            Object.values(ytPlayers).forEach(p => p.mute && p.mute());
-        } else {
-            globalMuteBtn.textContent = 'volume_up';
-            Object.values(ytPlayers).forEach(p => p.unMute && p.unMute());
-            // ミュート解除時にスライダーの音量を再適用
-            Object.values(ytPlayers).forEach(p => p.setVolume && p.setVolume(globalVolume));
-        }
+        const icon = isMuted ? 'volume_off' : 'volume_up';
+        document.getElementById('global-mute-btn').textContent = icon;
+        document.getElementById('mobile-mute-icon').textContent = icon;
+        Object.values(ytPlayers).forEach(p => {
+            if (isMuted) { p.mute && p.mute(); } 
+            else { p.unMute && p.unMute(); p.setVolume && p.setVolume(globalVolume); }
+        });
+    }
+
+    // Preset Modal Logic
+    function openModal() {
+        modal.classList.remove('hidden');
+        renderPresets();
+    }
+    closeModal.addEventListener('click', () => modal.classList.add('hidden'));
+    modal.addEventListener('click', (e) => { if(e.target === modal) modal.classList.add('hidden'); });
+
+    savePresetBtn.addEventListener('click', () => {
+        const name = presetNameInput.value.trim();
+        if (!name) return alert('プリセット名を入力してください');
+        if (currentStreams.length === 0) return alert('保存する配信がありません');
+        
+        const urls = currentStreams.map(s => s.url);
+        presets.push({ id: Date.now(), name, urls });
+        localStorage.setItem('yt-presets', JSON.stringify(presets));
+        presetNameInput.value = '';
+        renderPresets();
     });
 
-    // ==========================================
-    // UIイベントバインディング
-    // ==========================================
-    addBtn.addEventListener('click', () => {
-        const id = extractVideoId(streamInput.value);
-        if (id) addStream(id);
-        else alert('有効なYouTube URLを入力してください。');
-    });
-
-    streamInput.addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') {
-            const id = extractVideoId(streamInput.value);
-            if (id) addStream(id);
-            else alert('有効なYouTube URLを入力してください。');
+    function renderPresets() {
+        presetsList.innerHTML = '';
+        if (presets.length === 0) {
+            presetsList.innerHTML = '<p class="text-stone">保存されたプリセットはありません</p>';
+            return;
         }
-    });
+        presets.forEach(preset => {
+            const el = document.createElement('div');
+            el.className = 'preset-item';
+            el.innerHTML = `
+                <div class="preset-item-info">
+                    <strong>${preset.name}</strong>
+                    <span>${preset.urls.length} 配信</span>
+                </div>
+                <div class="preset-actions">
+                    <button class="load-preset" data-id="${preset.id}"><span class="material-icons">play_arrow</span></button>
+                    <button class="del-preset" data-id="${preset.id}"><span class="material-icons">delete</span></button>
+                </div>
+            `;
+            presetsList.appendChild(el);
+        });
 
-    layoutToggleBtn.addEventListener('click', () => {
-        if(grid.style.gridTemplateColumns === '1fr') {
-            grid.style.gridTemplateColumns = 'repeat(auto-fit, minmax(400px, 1fr))';
-        } else {
-            grid.style.gridTemplateColumns = '1fr';
-        }
-    });
+        document.querySelectorAll('.load-preset').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const id = parseInt(e.currentTarget.dataset.id);
+                const preset = presets.find(p => p.id === id);
+                if(preset) {
+                    // Close current streams
+                    document.querySelectorAll('.remove-stream-btn').forEach(b => b.click());
+                    // Load new ones
+                    preset.urls.forEach(url => addStream(url));
+                    modal.classList.add('hidden');
+                }
+            });
+        });
+
+        document.querySelectorAll('.del-preset').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const id = parseInt(e.currentTarget.dataset.id);
+                presets = presets.filter(p => p.id !== id);
+                localStorage.setItem('yt-presets', JSON.stringify(presets));
+                renderPresets();
+            });
+        });
+    }
 });

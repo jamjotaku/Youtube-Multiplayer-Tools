@@ -1,369 +1,278 @@
-/* =========================================
-   Base Variables (YouTube Dark Mode Theme)
-   ========================================= */
-   :root {
-    --bg-main: #0f0f0f;
-    --bg-secondary: #272727;
-    --bg-hover: #3f3f3f;
-    --text-primary: #f1f1f1;
-    --text-secondary: #aaaaaa;
-    --accent-red: #ff0000;
-    --accent-blue: #3ea6ff;
-    --border-color: #3f3f3f;
+:root {
+    /* vdake.net inspired colors */
+    --stone-50: #fafaf9;
+    --stone-300: #d6d3d1;
+    --stone-400: #a8a29e;
+    --stone-800: #292524;
+    --stone-900: #1c1917;
+    --stone-950: #0c0a09;
+    --rose-200: #fecdd3;
+    --rose-700: #be123c;
+    
+    --bg-color: var(--stone-950);
+    --text-color: var(--stone-50);
+    --glass-bg: rgba(28, 25, 23, 0.6);
+    --glass-border: rgba(41, 37, 36, 0.6);
     
     --header-height: 56px;
-    --transition-speed: 0.2s;
+    --bottom-nav-height: 64px;
 }
 
-/* =========================================
-   Global Reset
-   ========================================= */
-* {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
-}
+* { box-sizing: border-box; margin: 0; padding: 0; }
 
 body {
-    font-family: 'Roboto', 'Arial', sans-serif;
-    background-color: var(--bg-main);
-    color: var(--text-primary);
-    height: 100vh;
-    overflow: hidden; /* 防止全体のスクロール */
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    font-family: 'Zen Maru Gothic', sans-serif;
+    /* Use dvh for mobile perfection */
+    height: 100dvh;
     display: flex;
     flex-direction: column;
+    overflow: hidden;
 }
 
-/* =========================================
-   Header (Control Panel)
-   ========================================= */
+.text-rose { color: var(--rose-200); }
+.text-stone { color: var(--stone-400); }
+
+/* Glassmorphism */
+.glass {
+    background: var(--glass-bg);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--glass-border);
+}
+.glass-dark {
+    background: rgba(12, 10, 9, 0.8);
+    backdrop-filter: blur(8px);
+}
+
+/* Header */
 .yt-header {
+    height: var(--header-height);
     display: flex;
     align-items: center;
     justify-content: space-between;
-    height: var(--header-height);
     padding: 0 16px;
-    background-color: var(--bg-main);
     z-index: 100;
+    flex-shrink: 0;
 }
 
-.header-left, .header-right {
-    display: flex;
-    align-items: center;
-    gap: 16px;
-    min-width: 200px;
-}
-
-.header-right {
-    justify-content: flex-end;
-}
-
-.logo {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    cursor: pointer;
-}
-
-.logo-icon {
-    color: var(--accent-red);
-    font-size: 28px;
-}
-
-.logo h1 {
-    font-size: 18px;
-    font-weight: 700;
-    letter-spacing: -0.5px;
-}
+.logo { display: flex; align-items: center; gap: 8px; }
+.logo h1 { font-size: 1.1rem; font-weight: 700; margin: 0; letter-spacing: 0.5px; }
+.logo-icon { font-size: 24px; }
 
 /* Search Bar */
-.header-center {
-    flex: 1;
-    display: flex;
-    justify-content: center;
-    max-width: 600px;
-}
-
 .search-bar {
     display: flex;
-    width: 100%;
-    background-color: var(--bg-main);
-    border: 1px solid var(--border-color);
-    border-radius: 40px;
-    overflow: hidden;
-    margin: 0 40px;
+    align-items: center;
+    background: rgba(250, 250, 249, 0.1);
+    border: 1px solid var(--stone-800);
+    border-radius: 999px;
+    padding: 4px 4px 4px 16px;
+    transition: border-color 0.2s;
 }
-
-.search-bar:focus-within {
-    border-color: var(--accent-blue);
-    box-shadow: inset 0 1px 2px rgba(0,0,0,0.3);
-}
-
+.search-bar:focus-within { border-color: rgba(254, 205, 211, 0.4); }
 .search-bar input {
-    flex: 1;
-    background-color: transparent;
-    border: none;
-    color: var(--text-primary);
-    padding: 2px 20px;
-    font-size: 16px;
-    outline: none;
+    background: transparent; border: none; color: white;
+    outline: none; width: 300px; font-size: 0.9rem; font-family: inherit;
 }
-
-.search-bar input::placeholder {
-    color: var(--text-secondary);
-}
-
+.search-bar input::placeholder { color: var(--stone-400); }
 .search-btn {
-    background-color: var(--bg-secondary);
-    border: none;
-    border-left: 1px solid var(--border-color);
-    color: var(--text-primary);
-    padding: 0 20px;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: background-color var(--transition-speed);
+    background: var(--stone-800); border: none; color: white;
+    border-radius: 50%; width: 32px; height: 32px;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; transition: background 0.2s;
 }
+.search-btn:hover { background: var(--rose-700); }
 
-.search-btn:hover {
-    background-color: var(--bg-hover);
+/* Controls */
+.header-right { display: flex; align-items: center; gap: 16px; }
+.icon-btn {
+    background: transparent; border: none; color: var(--stone-300);
+    cursor: pointer; display: flex; align-items: center; justify-content: center;
+    transition: color 0.2s; padding: 8px; border-radius: 50%;
 }
+.icon-btn:hover { color: var(--text-color); background: rgba(255,255,255,0.1); }
+.global-controls { display: flex; align-items: center; gap: 8px; color: var(--stone-300); }
+input[type=range] { width: 80px; accent-color: var(--rose-200); }
 
-/* Icon Buttons */
-.icon-btn, .menu-icon, .control-btn {
-    background: transparent;
-    border: none;
-    color: var(--text-primary);
-    cursor: pointer;
-    border-radius: 50%;
-    width: 40px;
-    height: 40px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: background-color var(--transition-speed);
-}
-
-.icon-btn:hover, .menu-icon:hover, .control-btn:hover {
-    background-color: var(--bg-secondary);
-}
-
-/* =========================================
-   Main Content & Grid
-   ========================================= */
+/* Main Area */
 .main-container {
     flex: 1;
-    display: flex;
-    overflow: hidden;
     position: relative;
+    overflow: hidden; /* child grid will handle scrolling */
+    display: flex;
+    flex-direction: column;
 }
 
-.sidebar {
-    width: 240px;
-    background-color: var(--bg-main);
-    transition: width var(--transition-speed);
-    overflow-y: auto;
-}
-
-.sidebar.collapsed {
-    width: 0;
-    padding: 0;
-    overflow: hidden;
-}
-
+/* Grid Layout (Default) */
 .streams-grid {
     flex: 1;
-    padding: 8px;
     display: grid;
     gap: 8px;
+    padding: 8px;
     overflow-y: auto;
-    /* デフォルトのグリッドレイアウト。JSで動的に変更 */
-    background-color: #000;
+    /* Grid structure is dynamic via JS, but base style: */
+    grid-template-columns: 1fr;
+    grid-template-rows: 1fr;
 }
 
-.empty-state {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    height: 100%;
-}
-
-.empty-message {
-    text-align: center;
-    color: var(--text-secondary);
+/* Swipe Mode (Shorts-style) */
+.streams-grid.swipe-mode {
     display: flex;
     flex-direction: column;
-    align-items: center;
-    gap: 16px;
+    gap: 0;
+    padding: 0;
+    overflow-y: scroll;
+    scroll-snap-type: y mandatory;
+    scrollbar-width: none; /* Hide scrollbar for immersion */
+}
+.streams-grid.swipe-mode::-webkit-scrollbar { display: none; }
+.streams-grid.swipe-mode .stream-card {
+    height: 100%; /* In flex column, we'll force height in JS or CSS */
+    min-height: calc(100dvh - var(--header-height));
+    flex-shrink: 0;
+    scroll-snap-align: start;
+    border-radius: 0;
+    border: none;
+    margin-bottom: 0;
+}
+@media (max-width: 768px) {
+    .streams-grid.swipe-mode .stream-card {
+        min-height: calc(100dvh - var(--header-height) - var(--bottom-nav-height));
+    }
 }
 
-.empty-icon {
-    font-size: 64px;
-    opacity: 0.5;
-}
+/* Empty state */
+.empty-state { display: flex !important; align-items: center; justify-content: center; }
+.empty-message { text-align: center; color: var(--stone-400); }
+.empty-icon { font-size: 64px; margin-bottom: 16px; opacity: 0.5; }
+.empty-message h2 { margin-bottom: 8px; color: var(--stone-300); }
 
-/* =========================================
-   Stream Card
-   ========================================= */
+/* Stream Card */
 .stream-card {
-    background-color: var(--bg-main);
-    border: 1px solid var(--border-color);
-    border-radius: 8px;
+    background: var(--stone-900);
+    border-radius: 12px;
+    overflow: hidden;
     display: flex;
     flex-direction: column;
-    overflow: hidden;
-    height: 100%;
-    min-height: 250px;
+    border: 1px solid var(--stone-800);
+    transition: all 0.3s ease;
 }
-
 .stream-header {
-    display: flex;
-    align-items: center;
-    padding: 4px 8px;
-    background-color: var(--bg-secondary);
-    border-bottom: 1px solid var(--border-color);
-    height: 40px;
+    height: 36px; display: flex; align-items: center; padding: 0 8px;
+    justify-content: space-between; border-bottom: 1px solid var(--stone-800);
 }
-
-.drag-handle {
-    cursor: grab;
-    color: var(--text-secondary);
-    margin-right: 8px;
-    font-size: 20px;
-}
-
-.stream-title {
-    flex: 1;
-    font-size: 14px;
-    font-weight: 500;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-
-.stream-controls {
-    display: flex;
-    gap: 4px;
-}
-
+.drag-handle { cursor: grab; color: var(--stone-400); font-size: 18px; margin-right: 8px;}
+.stream-title { flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: 0.85rem; color: var(--stone-300); }
+.stream-controls { display: flex; gap: 4px; }
 .control-btn {
-    width: 32px;
-    height: 32px;
+    background: transparent; border: none; color: var(--stone-400);
+    cursor: pointer; padding: 4px; border-radius: 4px;
 }
+.control-btn:hover { background: rgba(255,255,255,0.1); color: white; }
+.toggle-chat-btn.active { color: var(--rose-200); }
 
-.control-btn .material-icons {
-    font-size: 18px;
-}
-
-.control-btn.active {
-    color: var(--accent-blue);
-}
-
-/* Body (Video + Chat) */
+/* Stream Body */
 .stream-body {
-    flex: 1;
-    display: flex;
+    flex: 1; display: flex; overflow: hidden;
+    /* Default side-by-side */
     flex-direction: row;
-    overflow: hidden;
+}
+.video-container { flex: 1; background: black; position: relative; }
+.youtube-player-placeholder {
+    width: 100%; height: 100%; position: absolute; top: 0; left: 0;
 }
 
-/* 動画が上の場合（縦長）や、横長の場合などレスポンシブ対応 */
-.stream-body {
-    flex-direction: column; /* デフォルトは縦並び */
-}
-
-/* 横幅に余裕がある時は横並びにする（CSS Grid等のコンテナサイズクエリが理想だが、ここではMedia Queryか親のクラスで制御） */
-@media (min-width: 800px) {
-    .streams-grid:not(.grid-many) .stream-body.has-chat {
-        flex-direction: row;
-    }
-}
-
-.video-container {
-    flex: 1;
-    background-color: #000;
-    position: relative;
-    min-height: 200px;
-}
-
-.video-container iframe {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    border: none;
-}
-
+/* Chat container */
 .chat-container {
-    display: none; /* デフォルト非表示 */
-    background-color: var(--bg-main);
-    border-top: 1px solid var(--border-color);
+    width: 300px;
+    background: var(--stone-950);
+    border-left: 1px solid var(--stone-800);
+    display: none;
 }
+.stream-body.has-chat .chat-container { display: block; }
+.chat-container iframe { width: 100%; height: 100%; border: none; }
 
-/* チャット表示時のスタイル */
-.stream-body.has-chat .chat-container {
-    display: block;
-    height: 250px; /* 縦並びの時のチャット高さ */
+/* Modal for Presets */
+.modal {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0,0,0,0.7); z-index: 1000;
+    display: flex; align-items: center; justify-content: center;
 }
+.modal.hidden { display: none; }
+.modal-content {
+    width: 90%; max-width: 400px; border-radius: 16px;
+    border: 1px solid var(--glass-border); padding: 24px;
+}
+.modal-header { display: flex; justify-content: space-between; margin-bottom: 16px; }
+.modal-header h2 { font-size: 1.2rem; margin: 0; }
+.save-preset-section { display: flex; gap: 8px; margin-bottom: 24px; }
+.save-preset-section input {
+    flex: 1; padding: 8px 12px; border-radius: 8px; border: 1px solid var(--stone-800);
+    background: rgba(0,0,0,0.5); color: white; outline: none; font-family: inherit;
+}
+.primary-btn {
+    background: var(--rose-700); color: white; border: none; padding: 8px 16px;
+    border-radius: 8px; cursor: pointer; transition: background 0.2s; font-weight: 500;
+    font-family: inherit; white-space: nowrap;
+}
+.primary-btn:hover { background: #9f1239; }
+.preset-item {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 12px; background: rgba(255,255,255,0.05); border-radius: 8px; margin-bottom: 8px;
+}
+.preset-item-info strong { display: block; font-size: 1rem; }
+.preset-item-info span { font-size: 0.8rem; color: var(--stone-400); }
+.preset-actions { display: flex; gap: 8px; }
+.preset-actions button {
+    background: rgba(255,255,255,0.1); border: none; color: var(--stone-300); cursor: pointer; padding: 8px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+}
+.preset-actions button:hover { color: white; background: var(--rose-700); }
 
-@media (min-width: 800px) {
-    .streams-grid:not(.grid-many) .stream-body.has-chat .chat-container {
-        width: 280px; /* 少し狭くして動画部分を広げる */
-        height: 100%;
-        border-top: none;
-        border-left: 1px solid var(--border-color);
+/* Mobile Optimizations */
+.show-on-mobile { display: none; }
+.mobile-search-bar { padding: 8px 16px; background: var(--stone-900); border-bottom: 1px solid var(--stone-800); }
+.mobile-search-bar .search-bar { width: 100%; }
+.mobile-search-bar .search-bar input { width: 100%; }
+
+@media (max-width: 768px) {
+    .hide-on-mobile { display: none !important; }
+    .show-on-mobile { display: flex; }
+    
+    .streams-grid { padding-bottom: var(--bottom-nav-height); }
+    .streams-grid.swipe-mode { padding-bottom: var(--bottom-nav-height); }
+    
+    /* Responsive layout for streams: chat goes bottom */
+    .stream-body { flex-direction: column; }
+    .chat-container { width: 100%; height: 40%; border-left: none; border-top: 1px solid var(--stone-800); }
+    .video-container { height: 60%; }
+    
+    /* Bottom Navigation */
+    .bottom-nav {
+        position: fixed; bottom: 0; left: 0; right: 0;
+        height: var(--bottom-nav-height);
+        border-top: 1px solid var(--glass-border);
+        border-bottom: none;
+        display: flex; justify-content: space-around; align-items: center;
+        padding-bottom: env(safe-area-inset-bottom);
+        z-index: 100;
     }
+    .nav-item {
+        background: transparent; border: none; color: var(--stone-400);
+        display: flex; flex-direction: column; align-items: center; gap: 4px;
+        cursor: pointer; font-size: 0.7rem; font-family: inherit;
+        flex: 1; padding: 8px 0; transition: color 0.2s;
+    }
+    .nav-item:hover, .nav-item:active { color: var(--rose-200); }
+    .nav-item .material-icons { font-size: 24px; }
 }
 
-.chat-container iframe {
-    width: 100%;
-    height: 100%;
-    border: none;
-}
-
-/* =========================================
-   Tooltips
-   ========================================= */
-.tooltip {
-    position: relative;
-}
-
-.tooltip::after {
-    content: attr(data-tooltip);
-    position: absolute;
-    bottom: -30px;
-    left: 50%;
-    transform: translateX(-50%);
-    background-color: rgba(97, 97, 97, 0.9);
-    color: white;
-    padding: 4px 8px;
-    border-radius: 4px;
-    font-size: 12px;
-    white-space: nowrap;
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity 0.2s;
-    z-index: 1000;
-}
-
+/* Tooltip baseline */
+.tooltip { position: relative; }
 .tooltip:hover::after {
-    opacity: 1;
-}
-
-/* スクロールバーのカスタマイズ */
-::-webkit-scrollbar {
-    width: 8px;
-    height: 8px;
-}
-::-webkit-scrollbar-track {
-    background: transparent;
-}
-::-webkit-scrollbar-thumb {
-    background: #717171;
-    border-radius: 4px;
-}
-::-webkit-scrollbar-thumb:hover {
-    background: #a0a0a0;
+    content: attr(data-tooltip); position: absolute; bottom: -30px; left: 50%; transform: translateX(-50%);
+    background: rgba(0,0,0,0.8); color: white; padding: 4px 8px; border-radius: 4px;
+    font-size: 12px; white-space: nowrap; z-index: 1000; pointer-events: none;
 }

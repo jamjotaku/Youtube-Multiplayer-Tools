@@ -2,72 +2,117 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>YT Multiplayer</title>
     <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#ff0000">
+    <meta name="theme-color" content="#0c0a09">
     <link rel="apple-touch-icon" href="icon.svg">
     <link rel="stylesheet" href="style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
-    <!-- Google Material Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@400;500;700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-    <!-- SortableJS -->
     <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
 </head>
-<body>
-    <!-- ヘッダー（コントロールパネル） -->
-    <header class="yt-header">
+<body class="dark-theme">
+    <!-- プリセット・モーダル -->
+    <div id="presets-modal" class="modal hidden">
+        <div class="modal-content glass">
+            <div class="modal-header">
+                <h2>プリセット管理</h2>
+                <button class="icon-btn close-modal"><span class="material-icons">close</span></button>
+            </div>
+            <div class="modal-body">
+                <div class="save-preset-section">
+                    <input type="text" id="preset-name-input" placeholder="プリセット名 (例: にじさんじコラボ)">
+                    <button id="save-preset-btn" class="primary-btn">現在の配信を保存</button>
+                </div>
+                <div id="presets-list" class="presets-list">
+                    <!-- プリセットがここに表示される -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ヘッダー（PC用・スマホ上部） -->
+    <header class="yt-header glass">
         <div class="header-left">
-            <span class="material-icons menu-icon">menu</span>
             <div class="logo">
-                <span class="material-icons logo-icon">play_circle_filled</span>
-                <h1>YT Multiplayer</h1>
+                <span class="material-icons logo-icon text-rose">play_circle_filled</span>
+                <h1><span class="text-rose">YT</span> Multiplayer</h1>
             </div>
         </div>
         
-        <div class="header-center">
+        <div class="header-center hide-on-mobile">
             <div class="search-bar">
-                <input type="text" id="stream-url-input" placeholder="YouTubeのURLまたは配信IDを入力...">
+                <input type="text" id="stream-url-input" placeholder="YouTubeのURLを入力...">
                 <button id="add-stream-btn" class="search-btn">
                     <span class="material-icons">add</span>
                 </button>
             </div>
         </div>
         
-        <div class="header-right">
-            <div class="global-controls tooltip" data-tooltip="全体の一括音量">
+        <div class="header-right hide-on-mobile">
+            <button id="presets-btn" class="icon-btn tooltip" data-tooltip="プリセット">
+                <span class="material-icons">bookmarks</span>
+            </button>
+            <div class="global-controls tooltip" data-tooltip="全体音量">
                 <span class="material-icons" id="global-mute-btn" style="cursor:pointer;">volume_up</span>
                 <input type="range" id="global-volume" min="0" max="100" value="50">
             </div>
             <button id="layout-toggle-btn" class="icon-btn tooltip" data-tooltip="レイアウト変更">
-                <span class="material-icons">grid_view</span>
-            </button>
-            <button class="icon-btn tooltip" data-tooltip="設定">
-                <span class="material-icons">settings</span>
+                <span class="material-icons">view_carousel</span>
             </button>
         </div>
     </header>
 
-    <!-- メインコンテンツ（ストリームグリッド） -->
+    <!-- メインコンテンツ -->
     <main class="main-container">
-        <!-- 動画を敷き詰めるグリッドエリア -->
+        <!-- スマホ用検索バー (表示切り替え) -->
+        <div class="mobile-search-bar show-on-mobile hidden" id="mobile-search-container">
+            <div class="search-bar">
+                <input type="text" id="mobile-stream-url-input" placeholder="YouTubeのURLを入力...">
+                <button id="mobile-add-stream-btn" class="search-btn">
+                    <span class="material-icons">add</span>
+                </button>
+            </div>
+        </div>
+
         <div id="streams-grid" class="streams-grid empty-state">
             <div class="empty-message">
-                <span class="material-icons empty-icon">video_library</span>
+                <span class="material-icons empty-icon text-stone">video_library</span>
                 <h2>配信がありません</h2>
-                <p>上の検索バーにYouTube LiveのURLを入力して追加してください</p>
+                <p>上の検索バーから配信URLを追加するか、<br>プリセットから読み込んでください。</p>
             </div>
         </div>
     </main>
 
-    <!-- ストリームカードのテンプレート -->
+    <!-- ボトムナビゲーション（スマホ専用） -->
+    <nav class="bottom-nav glass show-on-mobile">
+        <button id="mobile-nav-add" class="nav-item">
+            <span class="material-icons">add_box</span>
+            <span>追加</span>
+        </button>
+        <button id="mobile-nav-presets" class="nav-item">
+            <span class="material-icons">bookmarks</span>
+            <span>プリセット</span>
+        </button>
+        <button id="mobile-nav-layout" class="nav-item">
+            <span class="material-icons" id="mobile-layout-icon">view_carousel</span>
+            <span>モード</span>
+        </button>
+        <button id="mobile-nav-mute" class="nav-item">
+            <span class="material-icons" id="mobile-mute-icon">volume_up</span>
+            <span>音量</span>
+        </button>
+    </nav>
+
+    <!-- テンプレート -->
     <template id="stream-card-template">
         <div class="stream-card">
-            <div class="stream-header">
-                <div class="drag-handle material-icons tooltip" data-tooltip="ドラッグして移動">drag_indicator</div>
-                <div class="stream-title">配信を読み込み中...</div>
+            <div class="stream-header glass-dark">
+                <div class="drag-handle material-icons tooltip" data-tooltip="ドラッグで移動">drag_indicator</div>
+                <div class="stream-title">読み込み中...</div>
                 <div class="stream-controls">
-                    <button class="control-btn toggle-chat-btn tooltip" data-tooltip="チャットの表示/非表示">
+                    <button class="control-btn toggle-chat-btn tooltip" data-tooltip="チャット切替">
                         <span class="material-icons">chat</span>
                     </button>
                     <button class="control-btn remove-stream-btn tooltip" data-tooltip="閉じる">
@@ -77,12 +122,9 @@
             </div>
             <div class="stream-body has-chat">
                 <div class="video-container">
-                    <!-- YouTube IFrame API用のプレースホルダー -->
                     <div class="youtube-player-placeholder"></div>
                 </div>
-                <div class="chat-container">
-                    <!-- チャットiframeが挿入される -->
-                </div>
+                <div class="chat-container"></div>
             </div>
         </div>
     </template>
@@ -90,9 +132,7 @@
     <script src="app.js"></script>
     <script>
         if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('./sw.js')
-                .then(reg => console.log('Service Worker registered', reg))
-                .catch(err => console.error('Service Worker registration failed', err));
+            navigator.serviceWorker.register('./sw.js').catch(err => console.error(err));
         }
     </script>
 </body>
